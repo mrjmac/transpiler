@@ -16,9 +16,8 @@ public class transpiler {
         approvedAscii.add("else");
         approvedAscii.add("while");
 
-        pw.print(Files.readString(Path.of("template.txt"))); // setup basic java syntax
+        pw.print(Files.readString(Path.of("template.txt")));
         
-        // CHANGE TO HANDLEBRACKET SYSTEM
         while (st.hasMoreTokens())
         {
             String token = st.nextToken();
