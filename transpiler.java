@@ -2,7 +2,7 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.StringTokenizer;
-import java.util.TreeMap;
+import java.util.TreeSet;
 
 public class transpiler {
 
@@ -10,7 +10,11 @@ public class transpiler {
     {   
         StringTokenizer st = new StringTokenizer(Files.readString(Path.of("code.in")));
         PrintWriter pw = new PrintWriter("code.java");
-        TreeMap<String, Integer> vars = new TreeMap<>();
+        TreeSet<String> approvedAscii = new TreeSet<>();
+
+        approvedAscii.add("if");
+        approvedAscii.add("else");
+        approvedAscii.add("while");
 
         pw.print(Files.readString(Path.of("template.txt"))); // setup basic java syntax
         
@@ -18,22 +22,36 @@ public class transpiler {
         while (st.hasMoreTokens())
         {
             String token = st.nextToken();
+            char start = token.charAt(0);
 
-            if (token.equals("if") || token.equals("while") || token.equals("elif") || token.equals("else"))
+            if ((start >= 65 && start <= 90) || (start >= 97 && start <= 122) && !approvedAscii.contains(token))
             {
-                // everything before the brackets should be the same
-                String parse = "";
-
-                while (!token.equals("{"))
+                if (token.equals("elif"))
                 {
-                    parse += token + " ";
-                    token = st.nextToken();
+                    pw.print("else if ");
                 }
+                else if (token.equals("print"))
+                {
+                    pw.print("System.out.println(");
 
-                pw.print(parse);
+                    token = st.nextToken();
+                    while (!token.equals(";"))
+                    {
+                        pw.print(token + " ");
+                        token = st.nextToken();
+                    }
 
-                // after the bracket, we just have to sanitize for new variables and for print
-
+                    pw.print(");");
+                }
+                else
+                {
+                    pw.print("int " + token + " ");
+                    approvedAscii.add(token);
+                }
+            }
+            else
+            {
+                pw.print(token + " ");
             }
 
         }
